@@ -8,7 +8,7 @@ const manejoJSON = async () => {
         return productos;
     }
     catch (error) {
-        throw new Error(error);
+      throw new Error(error);
     }
 }
 
@@ -21,17 +21,27 @@ app.get("/", (req, res) => {
 })
 
 app.get("/products", async (req, res) => {
-    res.send(await manejoJSON());
-});
-
-app.get("/products", async (req, res) => {
     let limit = req.query.limit;
-    const limiteDeseado = +limit - 1;
     const productos = await manejoJSON();
-    const productosDeseados = (productos.id).slice(0, limiteDeseado);
-    console.log(productosDeseados)
-    res.send(productosDeseados);
-});
+    if (limit) {
+        let limiteDeseado = +limit;
+        const productosDeseados = (productos).slice(0, limiteDeseado);
+        res.send(productosDeseados);
+    } else {
+        res.send(productos);
+    }
+})
+
+app.get("/products/:pid", async (req, res) => {
+    let id = req.params.pid;
+    const productos = await manejoJSON();
+    const idDeseado = productos.find(productos => productos.id === id);
+    if(idDeseado) {
+        res.send(idDeseado);
+    } else {
+        res.status(400).send({ status: "error", error: `No existe con el producto con el ID ${id}.`});
+    }
+})
 
 app.listen(8080, () => {
     console.log("Servidor abierto en puerto 8080");
